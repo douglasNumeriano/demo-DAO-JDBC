@@ -54,16 +54,8 @@ public class SellerDaoJDBC implements SellerDao {
 			
 			//Posição zero não tem, colocando next() vai verirficar as outras posiçoes e ver se tem algum conteúdo
 			if(rs.next()) {
-				Department dep = new Department();
-				dep.setId(rs.getInt("departmentid"));
-				dep.setName(rs.getString("depname"));
-				Seller seller = new Seller();
-				seller.setId(rs.getInt("id"));
-				seller.setName(rs.getString("name"));
-				seller.setEmail(rs.getString("email"));
-				seller.setBirthDate(rs.getDate("birthdate"));
-				seller.setBaseSalary(rs.getDouble("basesalary"));
-				seller.setDepartment(dep);
+				Department dep = instantiateDepartment(rs);
+				Seller seller = instantiateDepartment(rs, dep);
 				return seller;
 			}
 			return null;
@@ -75,6 +67,24 @@ public class SellerDaoJDBC implements SellerDao {
 			DB.closeResultSet(rs);
 		}
 		
+	}
+
+	private Seller instantiateDepartment(ResultSet rs, Department dep) throws SQLException {
+		Seller seller = new  Seller();
+		seller.setId(rs.getInt("id"));
+		seller.setName(rs.getString("name"));
+		seller.setEmail(rs.getString("email"));
+		seller.setBirthDate(rs.getDate("birthdate"));
+		seller.setBaseSalary(rs.getDouble("basesalary"));
+		seller.setDepartment(dep);
+		return seller;
+	}
+
+	private Department instantiateDepartment(ResultSet rs) throws SQLException {
+		Department dep = new Department();
+		dep.setId(rs.getInt("departmentid"));
+		dep.setName(rs.getString("depname"));
+		return dep;
 	}
 
 	@Override
