@@ -48,10 +48,10 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs= null;
 		try {
 			ps = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName "
+					"SELECT seller.*,department.name as DepName "
 					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
-					+ "WHERE seller.Id = ? ");
+					+ "ON seller.departmentid = department.id "
+					+ "WHERE seller.id = ? ");
 			ps.setInt(1, id);
 			rs = ps.executeQuery();
 			
@@ -92,8 +92,45 @@ public class SellerDaoJDBC implements SellerDao {
 
 	@Override
 	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement ps = null;
+		ResultSet rs= null;
+		try {
+			ps = conn.prepareStatement(
+					"SELECT seller.*, department.name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.departmentid = department.id "
+					+ "ORDER BY name");
+		
+			rs = ps.executeQuery();
+			
+			List<Seller> lista = new ArrayList<>();
+			Map<Integer, Department> map = new HashMap<>();
+			
+			//Posição zero não tem, colocando next() vai veririficar as outras posiçoes e ver se tem algum conteúdo
+			while(rs.next()) {
+				
+				//Precisamos de apenas umas instancia do Department
+				// Se ainda não existir o Map vai retornar NUll
+				Department dep = map.get(rs.getInt("departmentid"));
+				
+				if(dep == null) {
+					
+					dep = instantiateDepartment(rs);
+					map.put(rs.getInt("departmentid"), dep);
+				}
+				
+				Seller seller = instantiateDepartment(rs, dep);
+				lista.add(seller);
+				return lista;
+			}
+			return null;
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(ps);
+			DB.closeResultSet(rs);
+		}
 	}
 
 	@Override
@@ -102,15 +139,15 @@ public class SellerDaoJDBC implements SellerDao {
 		ResultSet rs= null;
 		try {
 			ps = conn.prepareStatement(
-					"SELECT seller.*,department.Name as DepName "
+					"SELECT seller.*,department.name as DepName "
 					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
-					+ "WHERE departmentId = ? "
-					+ "ORDER BY Name");
+					+ "ON seller.departmentid = department.id "
+					+ "WHERE departmentid = ? "
+					+ "ORDER BY name");
 			ps.setInt(1, department.getId());
 			rs = ps.executeQuery();
 			
-			List<Seller> lista = new ArrayList();
+			List<Seller> lista = new ArrayList<>();
 			Map<Integer, Department> map = new HashMap<>();
 			
 			//Posição zero não tem, colocando next() vai verirficar as outras posiçoes e ver se tem algum conteúdo
