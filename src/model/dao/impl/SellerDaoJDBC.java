@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import db.DB;
 import db.DbException;
 import model.dao.SellerDao;
@@ -58,7 +57,7 @@ public class SellerDaoJDBC implements SellerDao {
 			//Posição zero não tem, colocando next() vai verirficar as outras posiçoes e ver se tem algum conteúdo
 			if(rs.next()) {
 				Department dep = instantiateDepartment(rs);
-				Seller seller = instantiateDepartment(rs, dep);
+				Seller seller = instantiateSeller(rs, dep);
 				return seller;
 			}
 			return null;
@@ -72,7 +71,7 @@ public class SellerDaoJDBC implements SellerDao {
 		
 	}
 
-	private Seller instantiateDepartment(ResultSet rs, Department dep) throws SQLException {
+	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
 		Seller seller = new  Seller();
 		seller.setId(rs.getInt("id"));
 		seller.setName(rs.getString("name"));
@@ -99,7 +98,7 @@ public class SellerDaoJDBC implements SellerDao {
 					"SELECT seller.*, department.name as DepName "
 					+ "FROM seller INNER JOIN department "
 					+ "ON seller.departmentid = department.id "
-					+ "ORDER BY name");
+					+ "ORDER BY id, name");
 		
 			rs = ps.executeQuery();
 			
@@ -119,11 +118,13 @@ public class SellerDaoJDBC implements SellerDao {
 					map.put(rs.getInt("departmentid"), dep);
 				}
 				
-				Seller seller = instantiateDepartment(rs, dep);
+				Seller seller = instantiateSeller(rs, dep);
 				lista.add(seller);
-				return lista;
+				
 			}
-			return null;
+			
+			return lista;
+			
 		}catch(SQLException e) {
 			throw new DbException(e.getMessage());
 		}
@@ -151,7 +152,7 @@ public class SellerDaoJDBC implements SellerDao {
 			Map<Integer, Department> map = new HashMap<>();
 			
 			//Posição zero não tem, colocando next() vai verirficar as outras posiçoes e ver se tem algum conteúdo
-			if(rs.next()) {
+			while(rs.next()) {
 				
 				//Precisamos de apenas umas instancia do Department
 				// Se ainda não existir o Map vai retornar NUll
@@ -163,11 +164,12 @@ public class SellerDaoJDBC implements SellerDao {
 					map.put(rs.getInt("departmentid"), dep);
 				}
 				
-				Seller seller = instantiateDepartment(rs, dep);
-				lista.add(seller);
-				return lista;
+				Seller seller = instantiateSeller(rs, dep);
+				lista.add(seller);				
 			}
-			return null;
+			
+			return lista;
+			
 		}catch(SQLException e) {
 			throw new DbException(e.getMessage());
 		}
