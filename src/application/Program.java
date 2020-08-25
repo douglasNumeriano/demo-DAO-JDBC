@@ -33,10 +33,16 @@ public class Program {
 		System.out.println(obj);
 		}
 		
-		System.out.println("\n=== TEST 3: seller findAll ======");
+		System.out.println("\n=== TEST 4: seller Insert ======");
 		Seller obj = new Seller(null, "Douglas", "douglas_rnmeriano@gmail.com", new Date(), 4000.00, dep);
 		sellerDao.insert(obj);
 		System.out.println("Id adicionado: " + obj.getId());
+				
+		System.out.println("\n=== TEST 5: seller Update======");
+		seller = sellerDao.findById(1);
+		seller.setName("Marta Waine");
+		sellerDao.update(seller);
+		System.out.println("Update completo");
 	}
 
 }
